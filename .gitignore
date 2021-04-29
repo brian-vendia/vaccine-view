@@ -1,0 +1,6 @@
+registration.json
+venv
+.DS_Store
+__pycache__
+samconfig.toml
+.aws-sam

@@ -1,0 +1,12 @@
+{
+    "email": "chris@domain.com",
+    "image": "chris_domain.com.jpg",
+    "lastUpdated": "2021-04-12T17:15:00Z",
+    "status": "partially vaccinated",
+    "firstDose": {
+      "manufacturer": "pfizer",
+      "lotNumber": "abc",
+      "administeredBy": "Clinic 123",
+      "administrationDate": "2021-04-12T17:15:00Z"
+    }
+}

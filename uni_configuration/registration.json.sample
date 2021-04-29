@@ -1,0 +1,26 @@
+{
+    "name": "test-vendia-vaccine-view",
+    "schema": "schema.json",
+    "nodes": [
+        {
+            "name": "UnitedAirlines",
+            "userId": "me@domain.com",
+            "region": "us-east-2"
+        },
+        {
+            "name": "EpicEhr",
+            "userId": "me@domain.com",
+            "region": "us-east-2"
+        },
+        {
+            "name": "IbmDigitalHealthPass",
+            "userId": "me@domain.com",
+            "region": "us-east-2"
+        },
+        {
+            "name": "CommonPass",
+            "userId": "me@domain.com",
+            "region": "us-east-2"
+        }
+    ]
+}

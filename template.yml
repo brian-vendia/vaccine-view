@@ -1,0 +1,121 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
+Description: SAM template to simulate uploading and processing of Vendia Vaccine View data
+
+Parameters:
+  VendiaEhrAccountNumber:
+    Type: String
+  
+  ShareNodeUrl:
+    Type: String
+  
+  ShareNodeApiKey:
+    Type: String
+
+Globals:
+  Function:
+    Runtime: python3.8
+    Timeout: 60
+    Handler: index.handler
+    MemorySize: 256
+
+Resources:
+  InputBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "${AWS::StackName}-${AWS::AccountId}-input-bucket"
+  
+  InputBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref InputBucket
+      PolicyDocument:
+        Statement:
+          - Action:
+              - s3:GetBucketLocation
+              - s3:GetBucketVersioning
+            Effect: Allow
+            Principal: 
+              AWS: !Sub "arn:aws:iam::${VendiaEhrAccountNumber}:root"
+            Resource: !Sub "arn:aws:s3:::${InputBucket}"
+          - Action:
+              - s3:GetObject
+              - s3:GetObjectVersion
+            Effect: Allow
+            Principal:
+              AWS: !Sub "arn:aws:iam::${VendiaEhrAccountNumber}:root"
+            Resource: !Sub "arn:aws:s3:::${InputBucket}/*"
+  
+  # DynamoDB to persist vaccine data and determine whether
+  # vaccine event is first or second shot
+  VaccineTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: email
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: email
+          KeyType: HASH
+      StreamSpecification:
+        StreamViewType: NEW_IMAGE
+
+  # AWS CloudWatch Log Group to persist Function logs for
+  # a 2 week period
+  FileDataLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${FileDataFunction}
+      RetentionInDays: 14
+
+  FileDataFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/file_data/
+      Environment:
+        Variables:
+          SHARE_NODE_URL: !Ref ShareNodeUrl
+          SHARE_NODE_API_KEY: !Ref ShareNodeApiKey
+      Policies:
+        - S3ReadPolicy:
+            BucketName: !Sub "${AWS::StackName}-${AWS::AccountId}-input-bucket"
+      Events:
+        ImageUploadEvent:
+          Type: S3
+          Properties:
+            Bucket: !Ref InputBucket
+            Events: 's3:ObjectCreated:*'
+
+  # AWS CloudWatch Log Group to persist Function logs for
+  # a 2 week period
+  ScalarDataLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${ScalarDataFunction}
+      RetentionInDays: 14
+
+  ScalarDataFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/scalar_data/
+      Environment:
+        Variables:
+          SHARE_NODE_URL: !Ref ShareNodeUrl
+          SHARE_NODE_API_KEY: !Ref ShareNodeApiKey
+      Policies:
+        - DynamoDBStreamReadPolicy:
+            TableName: !Ref VaccineTable
+            StreamName: !GetAtt VaccineTable.StreamArn
+      Events:
+        InventoryTable:
+          Type: DynamoDB
+          Properties:
+            Stream: !GetAtt VaccineTable.StreamArn
+            StartingPosition: TRIM_HORIZON
+            BatchSize: 100
+
+Outputs:
+  InputBucket:
+    Description: Bucket storing vaccine record card images
+    Value: !Sub s3://${InputBucket}

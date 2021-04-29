@@ -1,0 +1,81 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "http://vendia.net/schemas/demos/vaccine-view.json",
+    "title": "Vendia Vaccine View",
+    "description": "Common view of vaccine records",
+    "type": "object",
+    "properties": {
+        "VaccineRecord": {
+            "description": "A list of vaccines that have been administered.",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "description": "Email of the recipient",
+                        "type": "string"
+                    },
+                    "image": {
+                        "description": "Image name",
+                        "type": "string"
+                    },
+                    "lastUpdated": {
+                        "description": "When the record was last updated",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "status": {
+                        "description": "Vaccine status of person",
+                        "type": "string",
+                        "enum": [
+                            "partially vaccinated",
+                            "fully vaccinated"
+                        ]
+                    },
+                    "firstDose": {
+                        "type": "object",
+                        "properties": {
+                            "manufacturer": {
+                                "description": "Vaccine manufacturer",
+                                "type": "string"
+                            },
+                            "lotNumber": {
+                                "description": "Lot number of vaccine dose",
+                                "type": "string"
+                            },
+                            "administeredBy": {
+                                "description": "Location of administration",
+                                "type": "string"
+                            },
+                            "administrationDate": {
+                                "description": "When first dose was administered",
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "secondDose": {
+                        "type": "object",
+                        "properties": {
+                            "manufacturer": {
+                                "description": "Vaccine manufacturer",
+                                "type": "string"
+                            },
+                            "lotNumber": {
+                                "description": "Lot number of vaccine dose",
+                                "type": "string"
+                            },
+                            "administeredBy": {
+                                "description": "Location of administration",
+                                "type": "string"
+                            },
+                            "administrationDate": {
+                                "description": "When second dose was administered",
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
