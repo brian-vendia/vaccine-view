@@ -24,7 +24,6 @@ This example will demonstrate how Vendia Share can be used to allow vaccine data
 python3 -m venv venv
 . venv/bin/activate
 pip install pip --upgrade
-pip install -r requirements.txt
 ```
 
 
