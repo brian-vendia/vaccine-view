@@ -22,7 +22,7 @@ This example will demonstrate how Vendia Share can be used to allow vaccine data
 
 ```bash
 python3 -m venv venv
-. venv/bin/activate
+. ./venv/bin/activate
 pip install pip --upgrade
 ```
 
